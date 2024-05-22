@@ -27,7 +27,7 @@ filter {
 output {
   if [log][file][path] =~ "/var/log/nginx/(access|error).log" {
     elasticsearch {
-      hosts => ["192.168.64.139:9200"]
+      hosts => ["192.168.64.20:9200"]
       index => "nginx_logs"
     }
   }

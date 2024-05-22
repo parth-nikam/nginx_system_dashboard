@@ -7,7 +7,7 @@ filebeat.inputs:
     - /var/log/syslog             # Path to your syslog file
 
 output.logstash:
-  hosts: ["192.168.64.139:5044"]    # Logstash endpoint on vm1
+  hosts: ["192.168.64.20:5044"]    # Logstash endpoint on vm1
 
 setup.kibana:
-  host: "192.168.64.139:5601"       # Kibana endpoint on vm1
+  host: "192.168.64.20:5601"       # Kibana endpoint on vm1

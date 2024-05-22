@@ -59,7 +59,7 @@
 
     - name: Import Kibana dashboard using curl
       shell: |
-        curl -X POST "http://192.168.64.139:5601/api/saved_objects/_import" \
+        curl -X POST "http://192.168.64.20:5601/api/saved_objects/_import" \
         -H "kbn-xsrf: true" \
         -F "file=@/tmp/export.ndjson"
       register: dashboard_import_result
