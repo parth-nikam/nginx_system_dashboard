@@ -1,0 +1,15 @@
+all:
+  children:
+    elk:
+      hosts:
+        vm1:
+          ansible_host: 192.168.64.139
+          ansible_user: ubuntu  # Specify the SSH user here
+    data:
+      hosts:
+        vm2:
+          ansible_host: 192.168.64.140
+          ansible_user: ubuntu  # Specify the SSH user here
+        vm3:
+          ansible_host: 192.168.64.141
+          ansible_user: ubuntu  # Specify the SSH user here

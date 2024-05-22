@@ -1,0 +1,13 @@
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /var/log/nginx/access.log   # Path to your Nginx access log file
+    - /var/log/nginx/error.log    # Path to your Nginx error log file
+    - /var/log/syslog             # Path to your syslog file
+
+output.logstash:
+  hosts: ["192.168.64.139:5044"]    # Logstash endpoint on vm1
+
+setup.kibana:
+  host: "192.168.64.139:5601"       # Kibana endpoint on vm1

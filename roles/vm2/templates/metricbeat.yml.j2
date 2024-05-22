@@ -1,0 +1,19 @@
+metricbeat.modules:
+- module: system
+  period: 10s
+  enabled: true
+  metricsets:
+    - cpu
+    - memory
+    - network
+    - filesystem
+    - process
+  processors:
+  - add_host_metadata: ~
+  - add_cloud_metadata: ~
+
+output.logstash:
+  hosts: ["192.168.64.139:5044"]
+
+setup.kibana:
+  host: "192.168.64.139:5601"

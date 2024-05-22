@@ -1,0 +1,78 @@
+- name: Configure ELK Stack and Data VMs
+  hosts: all
+  become: yes
+  tasks:
+    - include_role:
+        name: vm1
+      when: inventory_hostname == "vm1"
+      tags: vm1
+
+    - include_role:
+        name: vm2
+      when: inventory_hostname == "vm2"
+      tags: vm2
+
+    - include_role:
+        name: vm3
+      when: inventory_hostname == "vm3"
+      tags: vm3
+
+- name: Run generaterequests.sh script on vm2 and vm3 for 1 minute
+  hosts: vm2:vm3
+  become: yes
+  tasks:
+    - name: Execute generaterequests.sh script in background
+      shell: ./generaterequests.sh &
+      args:
+        chdir: /home/ubuntu
+      async: 60
+      poll: 0
+      register: script_job
+      tags: vm2, vm3
+    
+    - name: Pause for 1 minute to let the script run
+      pause:
+        minutes: 1
+      tags: vm2, vm3
+
+- name: Upload Kibana dashboard
+  hosts: vm1
+  become: yes
+  tasks:
+    - name: Copy Kibana export file to the remote machine
+      copy:
+        src: /Users/parth.intern/ansible_v2/roles/vm1/files/export.ndjson
+        dest: /tmp/export.ndjson
+      tags: vm1
+
+    - name: Verify the Kibana export file exists on the remote machine
+      stat:
+        path: /tmp/export.ndjson
+      register: export_file_stat
+      tags: vm1
+
+    - name: Fail if the Kibana export file does not exist on the remote machine
+      fail:
+        msg: "The Kibana export file does not exist at the specified path on the remote machine."
+      when: not export_file_stat.stat.exists
+      tags: vm1
+
+    - name: Import Kibana dashboard using curl
+      shell: |
+        curl -X POST "http://192.168.64.139:5601/api/saved_objects/_import" \
+        -H "kbn-xsrf: true" \
+        -F "file=@/tmp/export.ndjson"
+      register: dashboard_import_result
+      ignore_errors: yes
+      when: export_file_stat.stat.exists
+      tags: vm1
+
+- name: Run generaterequests.sh script on vm2 and vm3 again
+  hosts: vm2:vm3
+  become: yes
+  tasks:
+    - name: Execute generaterequests.sh script
+      shell: ./generaterequests.sh &
+      args:
+        chdir: /home/ubuntu
+      tags: vm2, vm3

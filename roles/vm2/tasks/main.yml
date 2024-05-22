@@ -1,0 +1,75 @@
+- name: Update apt packages
+  apt:
+    update_cache: yes
+
+- name: Install default JRE
+  apt:
+    name: default-jre
+    state: present
+
+- name: Add Elastic GPG key
+  apt_key:
+    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+
+- name: Add Elastic repository for Filebeat and Metricbeat 7.x
+  apt_repository:
+    repo: "deb https://artifacts.elastic.co/packages/7.x/apt stable main"
+    state: present
+
+- name: Update apt packages after adding repository
+  apt:
+    update_cache: yes
+
+- name: Install Filebeat and Metricbeat
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - filebeat
+    - metricbeat
+
+- name: Install Nginx
+  apt:
+    name: nginx
+    state: present
+
+- name: Start and enable Filebeat, Metricbeat, and Nginx services
+  systemd:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  loop:
+    - filebeat
+    - metricbeat
+    - nginx
+
+- name: Configure Nginx
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+
+- name: Configure Filebeat
+  template:
+    src: filebeat.yml.j2
+    dest: /etc/filebeat/filebeat.yml
+
+- name: Configure Metricbeat
+  template:
+    src: metricbeat.yml.j2
+    dest: /etc/metricbeat/metricbeat.yml
+
+- name: Transfer generaterequests.sh script
+  copy:
+    src: generaterequests.sh
+    dest: /home/ubuntu/generaterequests.sh
+    mode: '0755'
+
+- name: Restart Metricbeat, Filebeat, and Nginx
+  systemd:
+    name: "{{ item }}"
+    state: restarted
+  loop:
+    - metricbeat
+    - filebeat
+    - nginx

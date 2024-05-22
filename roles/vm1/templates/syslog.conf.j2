@@ -1,0 +1,20 @@
+input {
+  beats {
+    port => 5044
+  }
+}
+
+filter {
+  if [fields][log_type] == "system" {
+    grok {
+      match => { "message" => '%{SYSLOGTIMESTAMP:syslog_timestamp} %{SYSLOGHOST:syslog_hostname} %{DATA:syslog_program}(?:\[%{POSINT:syslog_pid}\])?: %{GREEDYDATA:syslog_message}' }
+    }
+  }
+}
+
+output {
+  elasticsearch {
+    hosts => ["192.168.64.139:9200"]
+    index => "system_logs"
+  }
+}

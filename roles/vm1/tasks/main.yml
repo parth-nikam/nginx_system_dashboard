@@ -1,0 +1,116 @@
+- name: Update apt packages
+  apt:
+    update_cache: yes
+
+- name: Install default JRE
+  apt:
+    name: default-jre
+    state: present
+
+- name: Add Elastic GPG key
+  apt_key:
+    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+
+- name: Add Elastic repository for Elasticsearch 7.10.2
+  copy:
+    content: "deb https://artifacts.elastic.co/packages/7.x/apt stable main"
+    dest: /etc/apt/sources.list.d/elastic-7.x.list
+
+- name: Update apt packages after adding repository
+  apt:
+    update_cache: yes
+
+- name: Check if Elasticsearch is installed
+  shell: dpkg-query -l elasticsearch
+  register: elastic_search_installed
+  ignore_errors: yes
+
+- name: Install Elasticsearch 7.10.2 if not installed
+  apt:
+    name: elasticsearch=7.10.2
+    state: present
+  when: elastic_search_installed.rc != 0
+
+- name: Configure Elasticsearch
+  template:
+    src: elasticsearch.yml.j2
+    dest: /etc/elasticsearch/elasticsearch.yml
+
+- name: Start and enable Elasticsearch service
+  systemd:
+    name: elasticsearch
+    state: started
+    enabled: yes
+
+- name: Restart Elasticsearch service
+  systemd:
+    name: elasticsearch
+    state: restarted
+
+- name: Check if Kibana is installed
+  shell: dpkg-query -l kibana
+  register: kibana_installed
+  ignore_errors: yes
+
+- name: Install Kibana 7.10.2 if not installed
+  apt:
+    name: kibana=7.10.2
+    state: present
+  when: kibana_installed.rc != 0
+
+- name: Configure Kibana
+  template:
+    src: kibana.yml.j2
+    dest: /etc/kibana/kibana.yml
+
+- name: Create /var/log/kibana directory
+  file:
+    path: /var/log/kibana
+    state: directory
+    owner: kibana
+    group: kibana
+    mode: '0755'
+
+- name: Start and enable Kibana service
+  systemd:
+    name: kibana
+    state: started
+    enabled: yes
+
+- name: Restart Kibana service
+  systemd:
+    name: kibana
+    state: restarted    
+
+- name: Check if Logstash is installed
+  shell: dpkg-query -l logstash
+  register: logstash_installed
+  ignore_errors: yes
+
+- name: Install Logstash 7.10.2 if not installed
+  apt:
+    name: logstash=1:7.10.2-1
+    state: present
+  when: logstash_installed.rc != 0
+
+- name: Configure Logstash for nginx logs
+  template:
+    src: nginxls.conf.j2
+    dest: /etc/logstash/conf.d/nginxls.conf
+
+- name: Configure Logstash for syslog logs
+  template:
+    src: syslog.conf.j2
+    dest: /etc/logstash/conf.d/syslog.conf
+
+- name: Start and enable Logstash service
+  systemd:
+    name: logstash
+    state: started
+    enabled: yes
+
+- name: Restart Logstash service
+  systemd:
+    name: logstash
+    state: restarted
