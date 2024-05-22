@@ -7,7 +7,7 @@ pipeline {
         VM1_MAIN_FILE = 'roles/vm1/tasks/main.yml'
         VM2_MAIN_FILE = 'roles/vm2/tasks/main.yml'
         VM3_MAIN_FILE = 'roles/vm3/tasks/main.yml'
-        ANSIBLE = "/usr/local/bin/ansible-playbook"
+        ANSIBLE = "/opt/homebrew/bin/ansible-playbook"
     }
 
     stages {
