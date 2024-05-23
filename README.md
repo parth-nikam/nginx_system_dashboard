@@ -11,6 +11,22 @@ This project sets up a comprehensive log collection and monitoring platform usin
 3. Logstash processes the logs and sends them to Elasticsearch for storage and retrieval.
 4. Kibana connects to Elasticsearch to fetch log data and presents it in dashboards.
 
+## Architecture
+
+![Architecture Diagram](assets/Architecture.png)
+
+## Nginx Dashboard
+
+![Nginx Dashboard](assets/NginxDashboard.png)
+
+## System Dashboard
+
+![System Dashboard](assets/SystemDashboard.png)
+
+## Demo Video
+
+[Watch the Jenkins Pipeline Demo](assets/Dashboard_Jenkins.mp4)
+
 ## Deployment
 
 To deploy the project, follow these steps:
